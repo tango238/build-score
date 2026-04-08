@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const { init } = require('../src/init.js')
+const { check } = require('../src/check.js')
+
+const command = process.argv[2]
+const options = process.argv.slice(3)
+
+const HELP = `
+@hosty-jp/converge - 社内要件定義収束スキル for Claude Code
+
+Usage:
+  npx @hosty-jp/converge <command>
+
+Commands:
+  init     プロジェクトに converge スキルを配置
+  check    セットアップ状態を確認
+  help     このヘルプを表示
+
+Options:
+  --force            既存ファイルを確認なしで上書き (init)
+  --keep-knowledges  --force 時も knowledges/ を保護 (init)
+
+Setup:
+  1. npx @hosty-jp/converge init
+  2. converge/knowledges/ の中身を社内情報で埋める
+  3. Claude Code で /converge を実行
+`
+
+async function main() {
+  switch (command) {
+    case 'init':
+      await init({
+        force: options.includes('--force'),
+        keepKnowledges: options.includes('--keep-knowledges'),
+      })
+      break
+    case 'check':
+      await check()
+      break
+    case 'help':
+    case '--help':
+    case '-h':
+    case undefined:
+      console.log(HELP)
+      break
+    default:
+      console.error(`Unknown command: ${command}`)
+      console.log(HELP)
+      process.exit(1)
+  }
+}
+
+main().catch((error) => {
+  console.error('Error:', error.message)
+  process.exit(1)
+})

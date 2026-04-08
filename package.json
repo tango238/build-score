@@ -1,0 +1,29 @@
+{
+  "name": "@hosty-jp/converge",
+  "version": "0.1.0",
+  "description": "社内要件定義収束スキル for Claude Code — 漠然としたリクエストをBUILD/DEFER/KILLブリーフに変換",
+  "bin": {
+    "converge": "bin/converge"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "keywords": [
+    "claude-code",
+    "requirements",
+    "converge",
+    "kill-gate",
+    "hosty"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hosty-inhouse/converge.git"
+  },
+  "author": "Hosty",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
