@@ -152,6 +152,9 @@ status: reviewed
 - (機能2)
 - (機能3)
 
+## Solution Approach
+(Step 2 実装規模チェックの結果。推奨手段とその理由。代替手段がある場合は優先順位テーブルで提示)
+
 ## Effort Estimate
 - 工数レベル: X / 5（目安期間）
 
