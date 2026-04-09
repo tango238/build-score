@@ -50,6 +50,17 @@ status: draft
 | 要件定義の難易度 | {{req_difficulty}} | {{req_difficulty_reason}} |
 | 運用・インフラの複雑さ | {{ops_difficulty}} | {{ops_difficulty_reason}} |
 
+## Critical Review
+
+### 前提チャレンジ
+{{premise_challenge}}
+
+### リスク評価
+{{risk_assessment}}
+
+### セカンドオピニオン
+{{second_opinion}}
+
 ## Verdict: {{verdict}}
 
 {{verdict_rationale}}
