@@ -74,6 +74,32 @@ requirements/2026-04-08-invoice-automation.md が出力
 verdict: BUILD (score: 4) → 開発GO
 ```
 
+## Web版ヒアリングUI
+
+非エンジニアの実務担当者がブラウザ上でヒアリングに回答できるWeb版。
+
+### 起動
+
+Claude Code で:
+```
+/converge-web
+```
+
+またはターミナルで:
+```bash
+node bin/converge-web
+node bin/converge-web --port 8080  # ポート指定
+```
+
+`http://localhost:3456` をブラウザで開き、担当者に回答してもらいます。
+
+### 流れ
+
+1. タイトル・依頼者名・時給を入力
+2. Q1〜Q6に1問ずつチャット形式で回答
+3. AIがレビュー（既存サービス調査、実装規模チェック、批判的レビュー）
+4. ブリーフが requirements/ に自動生成
+
 ## 使い方
 
 ### 単件モード（基本）
@@ -271,6 +297,8 @@ Excelテンプレートに手動転記。ダブルチェックで2名体制。
 | `converge init --force --keep-knowledges` | スキル更新、knowledges/ は保護 |
 | `converge check` | セットアップ状態を確認 |
 | `converge help` | ヘルプを表示 |
+| `converge-web` | ブラウザ版ヒアリングUIを起動 |
+| `converge-web --port 8080` | ポート指定で起動 |
 
 ## License
 
