@@ -153,6 +153,16 @@
 </head>
 <body>
   <div class="container">
+    <!-- Screen: Resume -->
+    <div id="screen-resume" class="screen">
+      <h1>converge</h1>
+      <p class="subtitle">前回のヒアリングが途中のまま残っています</p>
+      <div id="resume-info" style="background:white; border:1px solid #e5e7eb; border-radius:8px; padding:16px; margin-bottom:24px;">
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:12px; width:100%;" onclick="resumeSession()">続きから再開する</button>
+      <button class="btn btn-secondary" style="width:100%;" onclick="clearAndStart()">クリアして新しく始める</button>
+    </div>
+
     <!-- Screen: Meta -->
     <div id="screen-meta" class="screen active">
       <h1>converge</h1>
@@ -518,13 +528,29 @@ async function autoStep(step) {
   }
 }
 
-// Init: resume if session exists
+function resumeSession() {
+  showScreen('screen-chat');
+  renderChat();
+}
+
+function clearAndStart() {
+  localStorage.removeItem('converge_meta');
+  localStorage.removeItem('converge_conversation');
+  localStorage.removeItem('converge_currentStep');
+  showScreen('screen-meta');
+}
+
+// Init: check for existing session
 (function init() {
   var meta = getMeta();
   var conv = getConversation();
   if (meta && conv.length > 0) {
-    showScreen('screen-chat');
-    renderChat();
+    var info = document.getElementById('resume-info');
+    var step = getCurrentStep();
+    var label = STEP_LABELS[step] || step;
+    info.innerHTML = '<strong>' + meta.title + '</strong><br>' +
+      '<span style="color:#666; font-size:14px;">依頼者: ' + meta.requester + ' / 進行中: ' + label + '</span>';
+    showScreen('screen-resume');
   }
 })();
 </script>
