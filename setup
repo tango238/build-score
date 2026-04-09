@@ -1,0 +1,90 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const path = require('path')
+
+const CONVERGE_ROOT = path.resolve(__dirname)
+const SKILL_DIR = path.join(CONVERGE_ROOT, 'templates')
+const TARGET_SKILL_DIR = path.join(
+  process.env.HOME || process.env.USERPROFILE,
+  '.claude',
+  'skills',
+  'converge'
+)
+
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+}
+
+function copyRecursive(src, dest) {
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+  ensureDir(dest)
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+
+    if (entry.isDirectory()) {
+      copyRecursive(srcPath, destPath)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
+  }
+}
+
+function printHeader() {
+  console.log('')
+  console.log('  converge — 社内要件定義の収束スキル for Claude Code')
+  console.log('')
+}
+
+function setupSkill() {
+  printHeader()
+
+  // 1. ~/.claude/skills/converge/ にスキルファイルをコピー
+  console.log('  [1/3] スキルファイルを配置中...')
+  copyRecursive(SKILL_DIR, TARGET_SKILL_DIR)
+  console.log(`    → ${TARGET_SKILL_DIR}`)
+
+  // 2. bin/converge へのシンボリックリンクを作成
+  console.log('  [2/3] CLI リンクを作成中...')
+  const binDir = path.join(
+    process.env.HOME || process.env.USERPROFILE,
+    '.claude',
+    'skills',
+    'converge',
+    'bin'
+  )
+  ensureDir(binDir)
+  const linkPath = path.join(binDir, 'converge')
+  const binTarget = path.join(CONVERGE_ROOT, 'bin', 'converge')
+
+  if (fs.existsSync(linkPath)) {
+    fs.unlinkSync(linkPath)
+  }
+  fs.symlinkSync(binTarget, linkPath)
+  console.log(`    → ${linkPath} -> ${binTarget}`)
+
+  // 3. セットアップ完了メッセージ
+  console.log('  [3/3] セットアップ完了!')
+  console.log('')
+  console.log('  使い方:')
+  console.log('    Claude Code で /converge と入力するだけ')
+  console.log('')
+  console.log('  プロジェクトへの配置 (オプション):')
+  console.log(`    node ${path.join(CONVERGE_ROOT, 'bin', 'converge')} init`)
+  console.log('')
+  console.log('  アンインストール:')
+  console.log(`    rm -rf ${TARGET_SKILL_DIR}`)
+  console.log('')
+}
+
+// メイン実行
+try {
+  setupSkill()
+} catch (error) {
+  console.error('  セットアップに失敗しました:', error.message)
+  process.exit(1)
+}

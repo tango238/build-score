@@ -427,8 +427,10 @@ affected_users が unknown の場合は1人として計算する。
 
 ## Priority Score ルブリック
 
-5質問の回答をもとに、以下のルブリックでスコアを算出する。
-スコア算出には `converge/scripts/score.js` のロジックを参照。
+5質問の回答をもとに、`converge/rules/priority-score.md` に定義されたルブリックでスコアを算出する。
+**ブリーフ出力前に必ず `converge/rules/priority-score.md` を読み込み、そのルールに従うこと。**
+
+デフォルトのルブリック（カスタマイズされていない場合）:
 
 | Score | Verdict | 条件 |
 |-------|---------|------|
@@ -438,7 +440,7 @@ affected_users が unknown の場合は1人として計算する。
 | 2 | DEFER | 月間5h未満 or 3ヶ月放置しても影響なし |
 | 1 | KILL | 「なくても困らない」or 既存ツールで代替可能 |
 
-`monthly_hours_current: unknown` の場合、算出されたスコアから1を引く（最低1）。
+組織固有のルールが `converge/rules/priority-score.md` に定義されている場合、そちらが優先される。
 
 ## ブリーフ出力
 
