@@ -261,6 +261,8 @@ function startHearing() {
   saveCurrentStep('q1');
   showScreen('screen-chat');
   renderChat();
+  var chat = document.getElementById('chat');
+  addMsgToChat(chat, 'ai', '**Q1: これがないと何が起きる？**\n\nもしこのツールが永遠に作られなかったとしたら、何が困りますか？具体的な業務への影響を教えてください。');
 }
 
 function startOver() {
@@ -298,10 +300,6 @@ function renderChat() {
     if (entry.aiResponse) {
       addMsgToChat(chat, 'ai', entry.aiResponse);
     }
-  }
-
-  if (STEP_LABELS[currentStep] && currentStep !== 'review' && currentStep !== 'generate' && currentStep !== 'review-confirm') {
-    addMsgToChat(chat, 'ai', '**' + STEP_LABELS[currentStep] + '**');
   }
 
   renderInputArea(currentStep);
@@ -424,9 +422,6 @@ async function sendAnswer(override) {
     } else if (data.choices) {
       renderInputArea(nextStep, data.choices);
     } else {
-      if (STEP_LABELS[nextStep] && nextStep !== step && nextStep !== 'review-confirm') {
-        addMsgToChat(chat, 'ai', '**' + STEP_LABELS[nextStep] + '**');
-      }
       renderInputArea(nextStep);
     }
     chat.scrollTop = chat.scrollHeight;
