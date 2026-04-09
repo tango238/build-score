@@ -181,7 +181,7 @@ Q2: {conversation[1].userAnswer}
 - タイトル（必須）
 - 依頼者名（必須）
 - 想定時給（デフォルト3,000円）
-- 「開始」ボタン
+- 「開始」ボタン（LocalStorageクリアして入力されたメタ情報だけ残す）
 
 **対話画面（Q1〜Q6 + レビュー）**
 - チャット風レイアウト
@@ -208,10 +208,11 @@ Q2: {conversation[1].userAnswer}
 ## ファイル構成
 
 ```
-bin/converge-web            # CLIエントリポイント（#!/usr/bin/env node）
-src/server.js               # HTTPサーバー + /api/step エンドポイント
-src/conversation.js         # claude -p プロンプト構築 + 実行 + レスポンスパース
-templates/web/index.html    # フロントエンド SPA
+bin/converge-web                    # CLIエントリポイント（#!/usr/bin/env node）
+src/server.js                       # HTTPサーバー + /api/step エンドポイント
+src/conversation.js                 # claude -p プロンプト構築 + 実行 + レスポンスパース
+templates/web/index.html            # フロントエンド SPA
+templates/commands/converge-web.md  # /converge-web スラッシュコマンド
 ```
 
 ## コマンド
@@ -220,6 +221,10 @@ templates/web/index.html    # フロントエンド SPA
 node bin/converge-web                # localhost:3456 で起動
 node bin/converge-web --port 8080    # ポート指定
 ```
+
+### Claude Code スラッシュコマンド
+
+`/converge-web` で起動可能。`templates/commands/converge-web.md` を配置し、init時に `.claude/commands/converge-web.md` としてプロジェクトに展開される。
 
 ## エラーハンドリング
 
