@@ -53,6 +53,11 @@ async function check() {
       required: true,
     },
     {
+      name: '.claude/commands/converge-web.md',
+      path: path.join(projectRoot, '.claude', 'commands', 'converge-web.md'),
+      required: false,
+    },
+    {
       name: 'requirements/',
       path: path.join(projectRoot, 'requirements'),
       required: true,
