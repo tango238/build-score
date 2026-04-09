@@ -3,10 +3,10 @@ const path = require('path')
 
 function slugify(text) {
   return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
+    .replace(/[\s　]+/g, '-')
+    .replace(/[\/\\:*?"<>|#%&{}@!`^~]/g, '')
     .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
     .slice(0, 50)
     .replace(/-$/, '')
 }
