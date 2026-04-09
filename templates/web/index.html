@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>converge — 社内要件定義ヒアリング</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+    h1 { font-size: 24px; margin-bottom: 8px; color: #1a1a1a; }
+    .subtitle { color: #666; margin-bottom: 32px; font-size: 14px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .progress { display: flex; gap: 4px; margin-bottom: 24px; }
+    .progress-step {
+      flex: 1; height: 4px; background: #ddd;
+      border-radius: 2px; transition: background 0.3s;
+    }
+    .progress-step.done { background: #2563eb; }
+    .progress-step.current { background: #60a5fa; }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+    .hint { font-size: 13px; color: #888; margin-bottom: 6px; }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
+      font-size: 16px; font-family: inherit; line-height: 1.5; transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus {
+      outline: none; border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    textarea { min-height: 120px; resize: vertical; }
+
+    .btn {
+      display: inline-block; padding: 12px 24px; border: none; border-radius: 8px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-choice {
+      display: block; width: 100%; padding: 14px 16px; margin-bottom: 8px;
+      background: white; border: 2px solid #e5e7eb; border-radius: 8px;
+      font-size: 15px; cursor: pointer; text-align: left;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-choice:hover { border-color: #2563eb; background: #eff6ff; }
+
+    .chat {
+      display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 20px; max-height: 60vh; overflow-y: auto; padding: 4px;
+    }
+    .msg {
+      max-width: 85%; padding: 12px 16px; border-radius: 12px;
+      font-size: 15px; line-height: 1.5; word-break: break-word;
+    }
+    .msg-ai { align-self: flex-start; background: white; border: 1px solid #e5e7eb; }
+    .msg-user { align-self: flex-end; background: #2563eb; color: white; }
+    .msg-ai p { margin-bottom: 8px; }
+    .msg-ai p:last-child { margin-bottom: 0; }
+
+    .typing {
+      align-self: flex-start; background: white; border: 1px solid #e5e7eb;
+      border-radius: 12px; padding: 12px 20px;
+    }
+    .typing span {
+      display: inline-block; width: 8px; height: 8px; background: #999;
+      border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+
+    .input-area { display: flex; gap: 8px; align-items: flex-end; }
+    .input-area textarea { flex: 1; min-height: 60px; max-height: 200px; }
+
+    .brief-preview {
+      background: white; border: 1px solid #e5e7eb; border-radius: 8px;
+      padding: 24px; margin-bottom: 16px; white-space: pre-wrap;
+      font-size: 14px; line-height: 1.6; max-height: 60vh; overflow-y: auto;
+    }
+    .file-path {
+      background: #f3f4f6; padding: 8px 12px; border-radius: 6px;
+      font-family: monospace; font-size: 13px; margin-bottom: 16px;
+    }
+
+    .help-toggle {
+      font-size: 13px; color: #2563eb; background: none; border: none;
+      cursor: pointer; padding: 4px 0; text-decoration: underline;
+    }
+    .help-text {
+      display: none; background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 8px; padding: 12px; margin-top: 6px;
+      font-size: 14px; color: #92400e;
+    }
+    .help-text.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Screen: Meta -->
+    <div id="screen-meta" class="screen active">
+      <h1>converge</h1>
+      <p class="subtitle">社内要件定義ヒアリング</p>
+      <div class="form-group">
+        <label for="meta-title">リクエストのタイトル</label>
+        <p class="hint">「○○を自動化したい」「○○ツールが欲しい」など</p>
+        <input type="text" id="meta-title" placeholder="例: 請求書自動生成ツール">
+      </div>
+      <div class="form-group">
+        <label for="meta-requester">依頼者</label>
+        <p class="hint">部署名 + お名前</p>
+        <input type="text" id="meta-requester" placeholder="例: 経理部 田中">
+      </div>
+      <div class="form-group">
+        <label for="meta-rate">想定時給（円）</label>
+        <p class="hint">ROI計算に使います。わからなければそのまま</p>
+        <input type="number" id="meta-rate" value="3000" min="0">
+      </div>
+      <button class="btn btn-primary" onclick="startHearing()">ヒアリングを開始する</button>
+    </div>
+
+    <!-- Screen: Chat -->
+    <div id="screen-chat" class="screen">
+      <div class="progress" id="progress"></div>
+      <div class="chat" id="chat"></div>
+      <div id="input-container"></div>
+    </div>
+
+    <!-- Screen: Result -->
+    <div id="screen-result" class="screen">
+      <h1>ブリーフが完成しました</h1>
+      <div class="file-path" id="result-path"></div>
+      <div class="brief-preview" id="result-brief"></div>
+      <button class="btn btn-primary" onclick="startOver()">もう1件入力する</button>
+    </div>
+  </div>
+
+<script>
+var STEPS = ['q1','q2','q3','q4','q5','q6','review','generate'];
+var STEP_LABELS = {
+  q1: 'Q1: これがないと何が起きる？',
+  q2: 'Q2: 今、誰が、どうやって回避している？',
+  q3: 'Q3: 誰が困っている？',
+  q4: 'Q4: 月に何時間かかっている？',
+  q5: 'Q5: 3ヶ月何もしなかったら？',
+  q6: 'Q6: 最小構成は何？',
+  review: 'レビュー中...',
+  generate: 'ブリーフ生成中...',
+};
+var STEP_HINTS = {
+  q1: '「もしこのツールが永遠に作られなかったとしたら、何が困りますか？」を考えてみてください。',
+  q2: '「今、その作業は誰がやっていますか？どんな手順で？Excel? メール? 手作業?」',
+  q3: '「この問題で困っているのは、あなただけですか？チーム全体ですか？同じ作業をしている人は他に何人？」',
+  q4: '「先週1週間で、この作業に何回関わりましたか？1回あたり何分くらい？」で月間を推定できます。',
+  q5: '「もし3ヶ月間このままだったら、何が起きますか？誰かが辞める？クレームが来る？何も変わらない？」',
+  q6: '「全部は作れません。1つだけ機能を選ぶとしたら？それがあれば、明日から使いますか？」',
+};
+
+function getMeta() {
+  var raw = localStorage.getItem('converge_meta');
+  return raw ? JSON.parse(raw) : null;
+}
+function getConversation() {
+  var raw = localStorage.getItem('converge_conversation');
+  return raw ? JSON.parse(raw) : [];
+}
+function getCurrentStep() {
+  return localStorage.getItem('converge_currentStep') || 'q1';
+}
+function saveMeta(meta) {
+  localStorage.setItem('converge_meta', JSON.stringify(meta));
+}
+function saveConversation(conv) {
+  localStorage.setItem('converge_conversation', JSON.stringify(conv));
+}
+function saveCurrentStep(step) {
+  localStorage.setItem('converge_currentStep', step);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function startHearing() {
+  var title = document.getElementById('meta-title').value.trim();
+  var requester = document.getElementById('meta-requester').value.trim();
+  var rate = parseInt(document.getElementById('meta-rate').value, 10) || 3000;
+  if (!title) { alert('タイトルを入力してください'); return; }
+  if (!requester) { alert('依頼者を入力してください'); return; }
+
+  localStorage.removeItem('converge_conversation');
+  localStorage.removeItem('converge_currentStep');
+  saveMeta({ title: title, requester: requester, hourlyRate: rate });
+  saveCurrentStep('q1');
+  showScreen('screen-chat');
+  renderChat();
+}
+
+function startOver() {
+  localStorage.removeItem('converge_meta');
+  localStorage.removeItem('converge_conversation');
+  localStorage.removeItem('converge_currentStep');
+  document.getElementById('meta-title').value = '';
+  document.getElementById('meta-requester').value = '';
+  document.getElementById('meta-rate').value = '3000';
+  showScreen('screen-meta');
+}
+
+function renderProgress() {
+  var currentStep = getCurrentStep();
+  var currentIdx = STEPS.indexOf(currentStep);
+  var el = document.getElementById('progress');
+  el.innerHTML = STEPS.map(function(s, i) {
+    var cls = i < currentIdx ? 'done' : i === currentIdx ? 'current' : '';
+    return '<div class="progress-step ' + cls + '"></div>';
+  }).join('');
+}
+
+function renderChat() {
+  renderProgress();
+  var chat = document.getElementById('chat');
+  var conv = getConversation();
+  var currentStep = getCurrentStep();
+  chat.innerHTML = '';
+
+  for (var i = 0; i < conv.length; i++) {
+    var entry = conv[i];
+    if (entry.userAnswer && entry.userAnswer !== '(auto)') {
+      addMsgToChat(chat, 'user', entry.userAnswer);
+    }
+    if (entry.aiResponse) {
+      addMsgToChat(chat, 'ai', entry.aiResponse);
+    }
+  }
+
+  if (STEP_LABELS[currentStep] && currentStep !== 'review' && currentStep !== 'generate' && currentStep !== 'review-confirm') {
+    addMsgToChat(chat, 'ai', '**' + STEP_LABELS[currentStep] + '**');
+  }
+
+  renderInputArea(currentStep);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addMsgToChat(chat, type, text) {
+  var div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+  div.innerHTML = simpleMarkdown(text);
+  chat.appendChild(div);
+}
+
+function simpleMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function renderInputArea(step, choices) {
+  var container = document.getElementById('input-container');
+
+  if (choices && choices.length > 0) {
+    container.innerHTML = choices.map(function(c) {
+      var val = c.value || c;
+      var label = c.label || c;
+      return '<button class="btn-choice" onclick="sendChoice(\'' +
+        val.replace(/'/g, "\\'") + '\', \'' +
+        label.replace(/'/g, "\\'") + '\')">' + label + '</button>';
+    }).join('');
+    return;
+  }
+
+  if (step === 'generate' || step === 'review') {
+    container.innerHTML = '';
+    return;
+  }
+
+  var hint = STEP_HINTS[step] || '';
+  container.innerHTML =
+    (hint ? '<button class="help-toggle" onclick="toggleHelp()">ヒントを見る</button><div class="help-text" id="help-text">' + hint + '</div>' : '') +
+    '<div class="input-area">' +
+      '<textarea id="user-input" placeholder="回答を入力してください..." rows="3"></textarea>' +
+      '<button class="btn btn-primary" id="send-btn" onclick="sendAnswer()">送信</button>' +
+    '</div>' +
+    '<button class="btn-choice" style="margin-top:8px; text-align:center; color:#888;" onclick="sendAnswer(\'わからない\')">わからない</button>';
+}
+
+function toggleHelp() {
+  var el = document.getElementById('help-text');
+  if (el) el.classList.toggle('show');
+}
+
+function showLoading() {
+  var container = document.getElementById('input-container');
+  container.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+}
+
+async function sendAnswer(override) {
+  var inputEl = document.getElementById('user-input');
+  var input = override || (inputEl ? inputEl.value.trim() : '');
+  if (!input) return;
+
+  var meta = getMeta();
+  var conversation = getConversation();
+  var step = getCurrentStep();
+  var chat = document.getElementById('chat');
+
+  addMsgToChat(chat, 'user', input);
+  showLoading();
+
+  try {
+    var res = await fetch('/api/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: step, meta: meta, conversation: conversation, userInput: input })
+    });
+    var data = await res.json();
+
+    if (data.error) {
+      addMsgToChat(chat, 'ai', 'エラーが発生しました: ' + data.error + '\n\nもう一度お試しください。');
+      renderInputArea(step);
+      return;
+    }
+
+    conversation.push({ step: step, userAnswer: input, aiResponse: data.aiResponse });
+    saveConversation(conversation);
+    addMsgToChat(chat, 'ai', data.aiResponse);
+
+    if (data.done && data.brief) {
+      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
+      document.getElementById('result-brief').textContent = data.brief;
+      showScreen('screen-result');
+      return;
+    }
+
+    var nextStep = data.nextStep || step;
+    saveCurrentStep(nextStep);
+    renderProgress();
+
+    if (nextStep === 'review' && step !== 'review') {
+      addMsgToChat(chat, 'ai', '**レビューフェーズを開始します...**');
+      showLoading();
+      await autoStep(nextStep);
+    } else if (nextStep === 'generate') {
+      addMsgToChat(chat, 'ai', '**ブリーフを生成しています...**');
+      showLoading();
+      await autoStep(nextStep);
+    } else if (data.choices) {
+      renderInputArea(nextStep, data.choices);
+    } else {
+      if (STEP_LABELS[nextStep] && nextStep !== step && nextStep !== 'review-confirm') {
+        addMsgToChat(chat, 'ai', '**' + STEP_LABELS[nextStep] + '**');
+      }
+      renderInputArea(nextStep);
+    }
+    chat.scrollTop = chat.scrollHeight;
+  } catch (err) {
+    addMsgToChat(chat, 'ai', '通信エラーが発生しました。サーバーが起動しているか確認してください。');
+    renderInputArea(step);
+  }
+}
+
+async function sendChoice(value, label) {
+  var meta = getMeta();
+  var conversation = getConversation();
+  var step = getCurrentStep();
+  var chat = document.getElementById('chat');
+
+  addMsgToChat(chat, 'user', label);
+  showLoading();
+
+  try {
+    var res = await fetch('/api/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: step, meta: meta, conversation: conversation, userInput: value })
+    });
+    var data = await res.json();
+
+    conversation.push({ step: step, userAnswer: label, aiResponse: data.aiResponse });
+    saveConversation(conversation);
+    addMsgToChat(chat, 'ai', data.aiResponse);
+
+    if (data.done && data.brief) {
+      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
+      document.getElementById('result-brief').textContent = data.brief;
+      showScreen('screen-result');
+      return;
+    }
+
+    var nextStep = data.nextStep || step;
+    saveCurrentStep(nextStep);
+    renderProgress();
+
+    if (nextStep === 'generate') {
+      addMsgToChat(chat, 'ai', '**ブリーフを生成しています...**');
+      showLoading();
+      await autoStep(nextStep);
+    } else if (data.choices) {
+      renderInputArea(nextStep, data.choices);
+    } else {
+      renderInputArea(nextStep);
+    }
+    chat.scrollTop = chat.scrollHeight;
+  } catch (err) {
+    addMsgToChat(chat, 'ai', '通信エラーが発生しました。');
+    renderInputArea(step);
+  }
+}
+
+async function autoStep(step) {
+  var meta = getMeta();
+  var conversation = getConversation();
+  var chat = document.getElementById('chat');
+
+  try {
+    var res = await fetch('/api/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: step, meta: meta, conversation: conversation, userInput: '' })
+    });
+    var data = await res.json();
+
+    conversation.push({ step: step, userAnswer: '(auto)', aiResponse: data.aiResponse });
+    saveConversation(conversation);
+    addMsgToChat(chat, 'ai', data.aiResponse);
+
+    if (data.done && data.brief) {
+      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
+      document.getElementById('result-brief').textContent = data.brief;
+      showScreen('screen-result');
+      return;
+    }
+
+    var nextStep = data.nextStep || step;
+    saveCurrentStep(nextStep);
+    renderProgress();
+
+    if (data.choices) {
+      renderInputArea(nextStep, data.choices);
+    } else if (nextStep === 'generate' && step !== 'generate') {
+      addMsgToChat(chat, 'ai', '**ブリーフを生成しています...**');
+      showLoading();
+      await autoStep(nextStep);
+    } else {
+      renderInputArea(nextStep);
+    }
+    chat.scrollTop = chat.scrollHeight;
+  } catch (err) {
+    addMsgToChat(chat, 'ai', '通信エラーが発生しました。');
+    renderInputArea(step);
+  }
+}
+
+// Init: resume if session exists
+(function init() {
+  var meta = getMeta();
+  var conv = getConversation();
+  if (meta && conv.length > 0) {
+    showScreen('screen-chat');
+    renderChat();
+  }
+})();
+</script>
+</body>
+</html>
