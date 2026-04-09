@@ -17,7 +17,7 @@
 ### Claude Code からインストール
 
 ```bash
-git clone --single-branch --depth 1 git@github.com:hosty-inhouse/converge.git ~/.claude/skills/converge && cd ~/.claude/skills/converge && node setup
+git clone --single-branch --depth 1 git@github.com:hosty-inhouse/converge.git ~/.claude/skills/converge
 ```
 
 これだけで完了。Claude Code で `/converge` が使えるようになります。
@@ -25,7 +25,7 @@ git clone --single-branch --depth 1 git@github.com:hosty-inhouse/converge.git ~/
 ### アップデート
 
 ```bash
-cd ~/.claude/skills/converge && git pull && node setup
+cd ~/.claude/skills/converge && git pull
 ```
 
 ### プロジェクトへの配置（オプション）
