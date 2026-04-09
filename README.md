@@ -122,6 +122,9 @@ your-project/
       security-policy.md         # セキュリティ制約
       existing-tools.md          # 社内既存ツール一覧
       constraints.md             # 技術制約
+    rules/
+      priority-score.md          # Priority Score ルブリック（カスタマイズ可）
+      solution-scale.md          # 実装規模の優先順位（カスタマイズ可）
   requirements/                  # ブリーフ出力先
 ```
 
@@ -166,6 +169,7 @@ your-project/
 WebSearchで既存のSaaS、無料ツール、OSSを検索。完全に代替可能ならKILL判定に変更。
 
 **Step 2: 実装規模の最小化チェック**
+`converge/rules/solution-scale.md` の優先順位に従い、最も軽量な手段を推奨。デフォルト:
 
 | 優先度 | 手段 | 例 |
 |--------|------|-----|
