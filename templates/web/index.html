@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>converge — 社内要件定義ヒアリング</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -97,7 +98,7 @@
 
     .brief-preview {
       background: white; border: 1px solid #e5e7eb; border-radius: 8px;
-      padding: 24px; margin-bottom: 16px; white-space: pre-wrap;
+      padding: 24px; margin-bottom: 16px;
       font-size: 14px; line-height: 1.6; max-height: 60vh; overflow-y: auto;
     }
     .file-path {
@@ -115,6 +116,36 @@
       font-size: 14px; color: #92400e;
     }
     .help-text.show { display: block; }
+
+    /* Markdown in chat */
+    .msg-ai h1, .msg-ai h2, .msg-ai h3 {
+      font-size: 15px; font-weight: 700; margin: 8px 0 4px;
+    }
+    .msg-ai h1 { font-size: 17px; }
+    .msg-ai ul, .msg-ai ol { padding-left: 20px; margin: 4px 0; }
+    .msg-ai li { margin: 2px 0; }
+    .msg-ai table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; }
+    .msg-ai th, .msg-ai td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+    .msg-ai th { background: #f9fafb; font-weight: 600; }
+    .msg-ai code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+    .msg-ai pre { background: #f3f4f6; padding: 8px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+    .msg-ai pre code { background: none; padding: 0; }
+    .msg-ai blockquote { border-left: 3px solid #d1d5db; padding-left: 12px; color: #6b7280; margin: 8px 0; }
+    .msg-ai hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+
+    /* Brief preview markdown */
+    .brief-preview h1, .brief-preview h2, .brief-preview h3 {
+      font-size: 16px; font-weight: 700; margin: 16px 0 8px;
+    }
+    .brief-preview h1 { font-size: 20px; }
+    .brief-preview h2 { font-size: 17px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    .brief-preview ul, .brief-preview ol { padding-left: 20px; margin: 4px 0; }
+    .brief-preview table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; }
+    .brief-preview th, .brief-preview td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+    .brief-preview th { background: #f9fafb; font-weight: 600; }
+    .brief-preview code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+    .brief-preview pre { background: #f3f4f6; padding: 8px; border-radius: 6px; overflow-x: auto; }
+    .brief-preview hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
   </style>
 </head>
 <body>
@@ -267,16 +298,17 @@ function renderChat() {
 function addMsgToChat(chat, type, text) {
   var div = document.createElement('div');
   div.className = 'msg msg-' + type;
-  div.innerHTML = simpleMarkdown(text);
+  div.innerHTML = renderMarkdown(text);
   chat.appendChild(div);
 }
 
-function simpleMarkdown(text) {
+function renderMarkdown(text) {
   if (!text) return '';
-  return text
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
+  try {
+    return marked.parse(text);
+  } catch {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }
 }
 
 var _pendingChoices = [];
@@ -359,7 +391,7 @@ async function sendAnswer(override) {
 
     if (data.done && data.brief) {
       document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').textContent = data.brief;
+      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
       showScreen('screen-result');
       return;
     }
@@ -414,7 +446,7 @@ async function sendChoice(value, label) {
 
     if (data.done && data.brief) {
       document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').textContent = data.brief;
+      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
       showScreen('screen-result');
       return;
     }
@@ -458,7 +490,7 @@ async function autoStep(step) {
 
     if (data.done && data.brief) {
       document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').textContent = data.brief;
+      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
       showScreen('screen-result');
       return;
     }
