@@ -279,16 +279,19 @@ function simpleMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
+var _pendingChoices = [];
+
 function renderInputArea(step, choices) {
   var container = document.getElementById('input-container');
 
   if (choices && choices.length > 0) {
-    container.innerHTML = choices.map(function(c) {
-      var val = c.value || c;
-      var label = c.label || c;
-      return '<button class="btn-choice" onclick="sendChoice(\'' +
-        val.replace(/'/g, "\\'") + '\', \'' +
-        label.replace(/'/g, "\\'") + '\')">' + label + '</button>';
+    _pendingChoices = choices.map(function(c) {
+      return { value: c.value || c, label: c.label || c };
+    });
+    container.innerHTML = _pendingChoices.map(function(c, i) {
+      return '<button class="btn-choice" onclick="pickChoice(' + i + ')">' +
+        c.label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+        '</button>';
     }).join('');
     return;
   }
@@ -306,6 +309,11 @@ function renderInputArea(step, choices) {
       '<button class="btn btn-primary" id="send-btn" onclick="sendAnswer()">送信</button>' +
     '</div>' +
     '<button class="btn-choice" style="margin-top:8px; text-align:center; color:#888;" onclick="sendAnswer(\'わからない\')">わからない</button>';
+}
+
+function pickChoice(index) {
+  var c = _pendingChoices[index];
+  if (c) sendChoice(c.value, c.label);
 }
 
 function toggleHelp() {

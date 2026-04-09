@@ -33,6 +33,7 @@ function startServer(port) {
       req.on('end', async () => {
         try {
           const data = JSON.parse(body)
+          data.projectRoot = process.cwd()
           const { handleStep } = require('./conversation.js')
           const result = await handleStep(data)
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })

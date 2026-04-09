@@ -227,9 +227,9 @@ ${instruction}
 }`
 }
 
-function callClaude(prompt) {
+function callClaude(prompt, cwd) {
   return new Promise((resolve, reject) => {
-    const child = execFile('claude', ['-p'], { timeout: TIMEOUT_MS, maxBuffer: 10 * 1024 * 1024 }, (error, stdout) => {
+    const child = execFile('claude', ['-p'], { timeout: TIMEOUT_MS, maxBuffer: 10 * 1024 * 1024, cwd: cwd || process.cwd() }, (error, stdout) => {
       if (error) {
         if (error.killed) {
           reject(new Error('応答に時間がかかっています（5分タイムアウト）。もう一度お試しください。'))
@@ -299,8 +299,9 @@ function normalizeResponse(parsed, currentStep) {
 }
 
 async function handleStep(data) {
+  const projectRoot = data.projectRoot || process.cwd()
   const prompt = buildPrompt(data)
-  const raw = await callClaude(prompt)
+  const raw = await callClaude(prompt, projectRoot)
   const result = parseResponse(raw, data.step)
 
   if (result.done && result.brief) {
