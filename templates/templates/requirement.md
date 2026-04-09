@@ -7,6 +7,7 @@ affected_users: {{affected_users}}
 solution_scale: {{solution_scale}}
 monthly_hours_current: {{monthly_hours_current}}
 monthly_hours_projected: {{monthly_hours_projected}}
+effort_level: {{effort_level}}
 verdict: {{verdict}}
 status: draft
 ---
@@ -35,6 +36,19 @@ status: draft
 ## MVP Scope
 
 {{mvp_scope}}
+
+## Effort Estimate
+
+- 工数レベル: {{effort_level}} / 5（{{effort_period}}）
+
+### 根拠
+
+| 評価軸 | 評価 | 理由 |
+|--------|------|------|
+| 機能の技術的難易度 | {{tech_difficulty}} | {{tech_difficulty_reason}} |
+| 利用ツール・構築ツールの難易度 | {{tool_difficulty}} | {{tool_difficulty_reason}} |
+| 要件定義の難易度 | {{req_difficulty}} | {{req_difficulty_reason}} |
+| 運用・インフラの複雑さ | {{ops_difficulty}} | {{ops_difficulty_reason}} |
 
 ## Verdict: {{verdict}}
 

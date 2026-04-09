@@ -125,6 +125,7 @@ your-project/
     rules/
       priority-score.md          # Priority Score ルブリック（カスタマイズ可）
       solution-scale.md          # 実装規模の優先順位（カスタマイズ可）
+      effort-estimate.md         # 工数見積り基準（カスタマイズ可）
   requirements/                  # ブリーフ出力先
 ```
 
@@ -209,6 +210,7 @@ affected_users: 3
 solution_scale: simple_web
 monthly_hours_current: 15
 monthly_hours_projected: 3
+effort_level: 3
 verdict: BUILD
 status: reviewed
 ---
@@ -240,6 +242,19 @@ Excelテンプレートに手動転記。ダブルチェックで2名体制。
 - 売上データからの自動転記
 - PDF出力
 - 月次バッチ実行
+
+## Effort Estimate
+
+- 工数レベル: 3 / 5（1〜2週間）
+
+### 根拠
+
+| 評価軸 | 評価 | 理由 |
+|--------|------|------|
+| 機能の技術的難易度 | 中 | 売上データの取得・変換・PDF生成。外部API連携1つ |
+| 利用ツール・構築ツールの難易度 | 低 | Node.js + PDFライブラリ。チームが習熟済み |
+| 要件定義の難易度 | 中 | 3人が利用。請求書フォーマットのすり合わせが必要 |
+| 運用・インフラの複雑さ | 低 | 月次バッチ実行のみ。cronで十分 |
 
 ## Verdict: BUILD
 
