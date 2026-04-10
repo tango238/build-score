@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // list-briefs.js — ブリーフサマリー一覧
-// 使い方: node converge/scripts/list-briefs.js [requirements-dir]
+// 使い方: node build-score/scripts/list-briefs.js [requirements-dir]
 
 const fs = require('fs')
 const path = require('path')

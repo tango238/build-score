@@ -1,10 +1,10 @@
 {
-  "name": "@hosty-jp/converge",
+  "name": "build-score",
   "version": "0.1.0",
   "description": "社内要件定義収束スキル for Claude Code — 漠然としたリクエストをBUILD/DEFER/KILLブリーフに変換",
   "bin": {
-    "converge": "bin/converge",
-    "converge-web": "bin/converge-web"
+    "build-score": "bin/build-score",
+    "build-score-web": "bin/build-score-web"
   },
   "files": [
     "bin/",
@@ -14,15 +14,14 @@
   "keywords": [
     "claude-code",
     "requirements",
-    "converge",
-    "kill-gate",
-    "hosty"
+    "build-score",
+    "kill-gate"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hosty-inhouse/converge.git"
+    "url": "https://github.com/tanago238/build-score.git"
   },
-  "author": "Hosty",
+  "author": "tanago238",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"

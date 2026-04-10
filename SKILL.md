@@ -1,10 +1,9 @@
 ---
-name: converge
+name: build-score
 description: |
-  社内要件定義の収束スキル。漠然とした社内リクエストを構造化質問で収束させ、
-  BUILD/DEFER/KILL 判定付きの1ページブリーフを出力する。
-  エンジニアがヒアリング時に操作し、業務部門の依頼者と対話しながら使う。
-  /converge で起動。「要件定義したい」「ツール作りたいって言われた」で自動起動。
+  要求分析をして定量的に判断できるようにするスキル。
+  漠然とした社内の開発リクエストを6つの質問で整理し、
+  BUILD/DEFER/KILL 判定付きブリーフに変換する。
 allowed-tools:
   - Bash
   - Read
@@ -17,7 +16,7 @@ allowed-tools:
   - Agent
 ---
 
-# /converge — 社内要件定義収束スキル
+# /build-score — 社内要件定義収束スキル
 
 ## 目的
 
@@ -28,7 +27,7 @@ allowed-tools:
 
 ## 起動時の処理
 
-1. `converge/knowledges/` 内のファイルをすべて読み込む（存在する場合）
+1. `build-score/knowledges/` 内のファイルをすべて読み込む（存在する場合）
 2. `requirements/` 内の既存ブリーフを読み込み、類似リクエストの有無を確認する
 3. モード選択に進む
 
@@ -238,7 +237,7 @@ Layer 3 で本当のインサイトが見つかった場合:
 - **部分的に代替可能** → MVP Scope から代替可能な機能を除外。残りが価値を持つか再評価
 - **代替なし** → そのまま続行
 
-`converge/knowledges/existing-tools.md` に記載された社内既存ツールの組み合わせで
+`build-score/knowledges/existing-tools.md` に記載された社内既存ツールの組み合わせで
 解決できないかも確認する。
 
 結果をユーザーに提示する:
@@ -256,8 +255,8 @@ Layer 3 で本当のインサイトが見つかった場合:
 
 ### Step 2: 実装規模の最小化チェック
 
-`converge/rules/solution-scale.md` に定義された優先順位に従い、最も軽量な手段を推奨する。
-**検討前に必ず `converge/rules/solution-scale.md` を読み込み、そのルールに従うこと。**
+`build-score/rules/solution-scale.md` に定義された優先順位に従い、最も軽量な手段を推奨する。
+**検討前に必ず `build-score/rules/solution-scale.md` を読み込み、そのルールに従うこと。**
 
 Q3（影響人数）と Q6（最小構成）の回答をもとに、上位の手段で解決できるなら下位の手段を選ばない。
 
@@ -266,13 +265,13 @@ Q3（影響人数）と Q6（最小構成）の回答をもとに、上位の手
 | 優先度 | 手段 | 適用条件 | 例 |
 |--------|------|---------|-----|
 | 1 | 既存ツールの設定変更 | 設定だけで解決する場合 | Google Formsの通知設定、Slackワークフロー |
-| 2 | Claude Code Skill / スラッシュコマンド | エンジニアが使う定型作業 | /converge のような対話型ワークフロー |
+| 2 | Claude Code Skill / スラッシュコマンド | エンジニアが使う定型作業 | /build-score のような対話型ワークフロー |
 | 3 | シェルスクリプト / `claude -p` スクリプト | 定期実行やバッチ処理 | cron + スクリプトで日次レポート生成 |
 | 4 | 既存スキルの組み合わせ | 複数の既存ツールの連携 | GAS + Slack Webhook |
 | 5 | 簡易Webツール（認証なし） | 2-5人が使う簡単な画面 | 静的HTML + API |
 | 6 | Webシステム（認証・DB付き） | 6人以上、複数部門、データ永続化が必要 | フルスタックアプリ |
 
-組織固有のルールが `converge/rules/solution-scale.md` に定義されている場合、そちらが優先される。
+組織固有のルールが `build-score/rules/solution-scale.md` に定義されている場合、そちらが優先される。
 
 検討結果をユーザーに提示する:
 
@@ -430,8 +429,8 @@ affected_users が unknown の場合は1人として計算する。
 
 ## 工数見積り
 
-ROI計算の後、`converge/rules/effort-estimate.md` に定義された基準で開発工数を1〜5段階で見積もる。
-**ブリーフ出力前に必ず `converge/rules/effort-estimate.md` を読み込み、そのルールに従うこと。**
+ROI計算の後、`build-score/rules/effort-estimate.md` に定義された基準で開発工数を1〜5段階で見積もる。
+**ブリーフ出力前に必ず `build-score/rules/effort-estimate.md` を読み込み、そのルールに従うこと。**
 
 以下の4軸を評価し、総合して工数レベルを算出する:
 
@@ -452,12 +451,12 @@ ROI計算の後、`converge/rules/effort-estimate.md` に定義された基準�
 | 4 | 2〜4週間 | Webシステム（認証・DB付き）、テスト・デプロイ環境の構築が必要 |
 | 5 | 1ヶ月以上 | 複数部門が使うシステム、複雑な権限管理、段階的リリースが必要 |
 
-組織固有のルールが `converge/rules/effort-estimate.md` に定義されている場合、そちらが優先される。
+組織固有のルールが `build-score/rules/effort-estimate.md` に定義されている場合、そちらが優先される。
 
 ## Priority Score ルブリック
 
-5質問の回答をもとに、`converge/rules/priority-score.md` に定義されたルブリックでスコアを算出する。
-**ブリーフ出力前に必ず `converge/rules/priority-score.md` を読み込み、そのルールに従うこと。**
+5質問の回答をもとに、`build-score/rules/priority-score.md` に定義されたルブリックでスコアを算出する。
+**ブリーフ出力前に必ず `build-score/rules/priority-score.md` を読み込み、そのルールに従うこと。**
 
 デフォルトのルブリック（カスタマイズされていない場合）:
 
@@ -469,11 +468,11 @@ ROI計算の後、`converge/rules/effort-estimate.md` に定義された基準�
 | 2 | DEFER | 月間5h未満 or 3ヶ月放置しても影響なし |
 | 1 | KILL | 「なくても困らない」or 既存ツールで代替可能 |
 
-組織固有のルールが `converge/rules/priority-score.md` に定義されている場合、そちらが優先される。
+組織固有のルールが `build-score/rules/priority-score.md` に定義されている場合、そちらが優先される。
 
 ## ブリーフ出力
 
-`converge/templates/requirement.md` のテンプレートに従い、
+`build-score/templates/requirement.md` のテンプレートに従い、
 `requirements/` ディレクトリに以下のファイル名で出力する:
 
 ```
@@ -492,7 +491,7 @@ requirements/{date}-{title-slug}.md
 ## DEFER案件の再評価
 
 DEFER判定のブリーフは `status: deferred` となる。
-次回 `/converge` 実行時に、3ヶ月以上前のDEFER案件があれば自動的に通知する:
+次回 `/build-score` 実行時に、3ヶ月以上前のDEFER案件があれば自動的に通知する:
 
 > 以下のDEFER案件が3ヶ月以上経過しています。再評価しますか？
 > - {タイトル} (deferred: {日付})
@@ -501,7 +500,7 @@ DEFER判定のブリーフは `status: deferred` となる。
 
 ## knowledges/ の活用
 
-`converge/knowledges/` 内のファイルは、ヒアリング中の判断に利用する:
+`build-score/knowledges/` 内のファイルは、ヒアリング中の判断に利用する:
 
 - **security-policy.md**: セキュリティ上実現不可能な要件を早期に検出する
 - **existing-tools.md**: 既存ツールで代替可能な場合にKILL判定の根拠にする

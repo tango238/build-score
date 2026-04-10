@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // roi-summary.js — ROI自動集計
-// 使い方: node converge/scripts/roi-summary.js [requirements-dir] [hourly-rate]
+// 使い方: node build-score/scripts/roi-summary.js [requirements-dir] [hourly-rate]
 
 const fs = require('fs')
 const path = require('path')

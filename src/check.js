@@ -3,58 +3,58 @@ const path = require('path')
 
 async function check() {
   const projectRoot = process.cwd()
-  console.log('\n  @hosty-jp/converge check')
+  console.log('\n  build-score check')
   console.log(`  Project: ${projectRoot}\n`)
 
   const checks = [
     {
-      name: 'converge/SKILL.md',
-      path: path.join(projectRoot, 'converge', 'SKILL.md'),
+      name: 'build-score/SKILL.md',
+      path: path.join(projectRoot, 'build-score', 'SKILL.md'),
       required: true,
     },
     {
-      name: 'converge/templates/requirement.md',
-      path: path.join(projectRoot, 'converge', 'templates', 'requirement.md'),
+      name: 'build-score/templates/requirement.md',
+      path: path.join(projectRoot, 'build-score', 'templates', 'requirement.md'),
       required: true,
     },
     {
-      name: 'converge/scripts/score.js',
-      path: path.join(projectRoot, 'converge', 'scripts', 'score.js'),
+      name: 'build-score/scripts/score.js',
+      path: path.join(projectRoot, 'build-score', 'scripts', 'score.js'),
       required: true,
     },
     {
-      name: 'converge/scripts/list-briefs.js',
-      path: path.join(projectRoot, 'converge', 'scripts', 'list-briefs.js'),
+      name: 'build-score/scripts/list-briefs.js',
+      path: path.join(projectRoot, 'build-score', 'scripts', 'list-briefs.js'),
       required: true,
     },
     {
-      name: 'converge/scripts/roi-summary.js',
-      path: path.join(projectRoot, 'converge', 'scripts', 'roi-summary.js'),
+      name: 'build-score/scripts/roi-summary.js',
+      path: path.join(projectRoot, 'build-score', 'scripts', 'roi-summary.js'),
       required: true,
     },
     {
-      name: 'converge/knowledges/security-policy.md',
-      path: path.join(projectRoot, 'converge', 'knowledges', 'security-policy.md'),
+      name: 'build-score/knowledges/security-policy.md',
+      path: path.join(projectRoot, 'build-score', 'knowledges', 'security-policy.md'),
       required: false,
     },
     {
-      name: 'converge/knowledges/existing-tools.md',
-      path: path.join(projectRoot, 'converge', 'knowledges', 'existing-tools.md'),
+      name: 'build-score/knowledges/existing-tools.md',
+      path: path.join(projectRoot, 'build-score', 'knowledges', 'existing-tools.md'),
       required: false,
     },
     {
-      name: 'converge/knowledges/constraints.md',
-      path: path.join(projectRoot, 'converge', 'knowledges', 'constraints.md'),
+      name: 'build-score/knowledges/constraints.md',
+      path: path.join(projectRoot, 'build-score', 'knowledges', 'constraints.md'),
       required: false,
     },
     {
-      name: '.claude/commands/converge.md',
-      path: path.join(projectRoot, '.claude', 'commands', 'converge.md'),
+      name: '.claude/commands/build-score.md',
+      path: path.join(projectRoot, '.claude', 'commands', 'build-score.md'),
       required: true,
     },
     {
-      name: '.claude/commands/converge-web.md',
-      path: path.join(projectRoot, '.claude', 'commands', 'converge-web.md'),
+      name: '.claude/commands/build-score-web.md',
+      path: path.join(projectRoot, '.claude', 'commands', 'build-score-web.md'),
       required: false,
     },
     {
@@ -85,7 +85,7 @@ async function check() {
         console.log(`  + ${c.name}`)
       }
     } else if (c.required) {
-      console.log(`  x ${c.name} (見つかりません — npx @hosty-jp/converge init を実行)`)
+      console.log(`  x ${c.name} (見つかりません — npx build-score init を実行)`)
       allOk = false
     } else {
       console.log(`  - ${c.name} (オプション)`)

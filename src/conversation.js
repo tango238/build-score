@@ -13,8 +13,8 @@ function readFileIfExists(filePath) {
 }
 
 function loadContext(projectRoot) {
-  const rulesDir = path.join(projectRoot, 'converge', 'rules')
-  const knowledgesDir = path.join(projectRoot, 'converge', 'knowledges')
+  const rulesDir = path.join(projectRoot, 'build-score', 'rules')
+  const knowledgesDir = path.join(projectRoot, 'build-score', 'knowledges')
 
   return {
     priorityScore: readFileIfExists(path.join(rulesDir, 'priority-score.md')),
@@ -208,7 +208,7 @@ function buildPrompt(data) {
     throw new Error(`Unknown step: ${step}`)
   }
 
-  return `あなたは社内要件定義の収束スキル「converge」のAIアシスタントです。
+  return `あなたは社内要件定義の収束スキル「build-score」のAIアシスタントです。
 日本語で回答してください。
 
 ## ルール
