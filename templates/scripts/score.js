@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // score.js — Priority Score 計算
-// 使い方: node converge/scripts/score.js requirements/2026-04-08-example.md
+// 使い方: node build-score/scripts/score.js requirements/2026-04-08-example.md
 
 const fs = require('fs')
 const path = require('path')
@@ -8,7 +8,7 @@ const path = require('path')
 const file = process.argv[2]
 
 if (!file) {
-  console.error('使い方: node converge/scripts/score.js <requirement-file>')
+  console.error('使い方: node build-score/scripts/score.js <requirement-file>')
   process.exit(1)
 }
 
@@ -25,7 +25,7 @@ function extractField(field) {
 }
 
 function loadRubric() {
-  const rulesPath = path.join(process.cwd(), 'converge', 'rules', 'priority-score.md')
+  const rulesPath = path.join(process.cwd(), 'build-score', 'rules', 'priority-score.md')
   if (!fs.existsSync(rulesPath)) {
     return null
   }
@@ -61,7 +61,7 @@ console.log(`Verdict: ${verdict || '未判定'}`)
 console.log('')
 
 if (rubric) {
-  console.log('--- ルブリック (converge/rules/priority-score.md) ---')
+  console.log('--- ルブリック (build-score/rules/priority-score.md) ---')
   for (const row of rubric) {
     console.log(`${row.score} (${row.verdict}): ${row.condition}`)
   }

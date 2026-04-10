@@ -25,7 +25,7 @@ function getAllTemplateFiles(dir, base = '') {
 
 async function init(options = {}) {
   const projectRoot = getProjectRoot()
-  console.log('\n  @hosty-jp/converge init')
+  console.log('\n  build-score init')
   console.log(`  Project: ${projectRoot}\n`)
 
   const templateFiles = getAllTemplateFiles(TEMPLATES_DIR)
@@ -35,13 +35,13 @@ async function init(options = {}) {
   for (const relPath of templateFiles) {
     const srcPath = path.join(TEMPLATES_DIR, relPath)
 
-    // commands/converge.md → .claude/commands/converge.md
-    // それ以外 → converge/ 配下
+    // commands/build-score.md → .claude/commands/build-score.md
+    // それ以外 → build-score/ 配下
     let destRelPath
     if (relPath.startsWith('commands' + path.sep)) {
       destRelPath = path.join('.claude', relPath)
     } else {
-      destRelPath = path.join('converge', relPath)
+      destRelPath = path.join('build-score', relPath)
     }
 
     const destPath = path.join(projectRoot, destRelPath)
@@ -52,7 +52,7 @@ async function init(options = {}) {
     }
 
     // --force でも knowledges/ は保護（--keep-knowledges）
-    if (options.keepKnowledges && destRelPath.includes(path.join('converge', 'knowledges'))) {
+    if (options.keepKnowledges && destRelPath.includes(path.join('build-score', 'knowledges'))) {
       if (fs.existsSync(destPath)) {
         skipped.push(destRelPath + ' (knowledges 保護)')
         continue
@@ -89,8 +89,8 @@ async function init(options = {}) {
 
   console.log('\n  セットアップ完了!')
   console.log('\n  次のステップ:')
-  console.log('    1. converge/knowledges/ の中身を社内情報で埋める')
-  console.log('    2. Claude Code で /converge を実行')
+  console.log('    1. build-score/knowledges/ の中身を社内情報で埋める')
+  console.log('    2. Claude Code で /build-score を実行')
   console.log('')
 }
 

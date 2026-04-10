@@ -7,13 +7,13 @@ const command = process.argv[2]
 const options = process.argv.slice(3)
 
 const HELP = `
-@hosty-jp/converge - 社内要件定義収束スキル for Claude Code
+build-score - 社内要件定義収束スキル for Claude Code
 
 Usage:
-  npx @hosty-jp/converge <command>
+  npx build-score <command>
 
 Commands:
-  init     プロジェクトに converge スキルを配置
+  init     プロジェクトに build-score スキルを配置
   check    セットアップ状態を確認
   help     このヘルプを表示
 
@@ -22,9 +22,9 @@ Options:
   --keep-knowledges  --force 時も knowledges/ を保護 (init)
 
 Setup:
-  1. npx @hosty-jp/converge init
-  2. converge/knowledges/ の中身を社内情報で埋める
-  3. Claude Code で /converge を実行
+  1. npx build-score init
+  2. build-score/knowledges/ の中身を社内情報で埋める
+  3. Claude Code で /build-score を実行
 `
 
 async function main() {

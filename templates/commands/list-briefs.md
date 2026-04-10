@@ -1,1 +1,1 @@
-Run `node converge/scripts/list-briefs.js` and display the results.
+Run `node build-score/scripts/list-briefs.js` and display the results.

@@ -52,7 +52,7 @@ function startServer(port) {
 
   server.listen(port, () => {
     console.log('')
-    console.log('  converge-web — ブラウザ版ヒアリングUI')
+    console.log('  build-score-web — ブラウザ版ヒアリングUI')
     console.log('')
     console.log(`  http://localhost:${port}`)
     console.log('')

@@ -1,0 +1,4 @@
+node_modules/
+requirements/*.md
+!requirements/.gitkeep
+.claude/settings.local.json

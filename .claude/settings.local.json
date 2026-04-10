@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(chmod +x:*)",
-      "Read(//private/tmp/test-converge/**)",
-      "Bash(node /Users/go/work/hosty/rd-cc/bin/converge check)"
-    ]
-  }
-}

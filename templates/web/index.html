@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>converge — 社内要件定義ヒアリング</title>
+  <title>build-score — 社内要件定義ヒアリング</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -155,7 +155,7 @@
   <div class="container">
     <!-- Screen: Resume -->
     <div id="screen-resume" class="screen">
-      <h1>converge</h1>
+      <h1>build-score</h1>
       <p class="subtitle">前回のヒアリングが途中のまま残っています</p>
       <div id="resume-info" style="background:white; border:1px solid #e5e7eb; border-radius:8px; padding:16px; margin-bottom:24px;">
       </div>
@@ -165,7 +165,7 @@
 
     <!-- Screen: Meta -->
     <div id="screen-meta" class="screen active">
-      <h1>converge</h1>
+      <h1>build-score</h1>
       <p class="subtitle">社内要件定義ヒアリング</p>
       <div class="form-group">
         <label for="meta-title">リクエストのタイトル</label>
@@ -223,24 +223,24 @@ var STEP_HINTS = {
 };
 
 function getMeta() {
-  var raw = localStorage.getItem('converge_meta');
+  var raw = localStorage.getItem('build_score_meta');
   return raw ? JSON.parse(raw) : null;
 }
 function getConversation() {
-  var raw = localStorage.getItem('converge_conversation');
+  var raw = localStorage.getItem('build_score_conversation');
   return raw ? JSON.parse(raw) : [];
 }
 function getCurrentStep() {
-  return localStorage.getItem('converge_currentStep') || 'q1';
+  return localStorage.getItem('build_score_currentStep') || 'q1';
 }
 function saveMeta(meta) {
-  localStorage.setItem('converge_meta', JSON.stringify(meta));
+  localStorage.setItem('build_score_meta', JSON.stringify(meta));
 }
 function saveConversation(conv) {
-  localStorage.setItem('converge_conversation', JSON.stringify(conv));
+  localStorage.setItem('build_score_conversation', JSON.stringify(conv));
 }
 function saveCurrentStep(step) {
-  localStorage.setItem('converge_currentStep', step);
+  localStorage.setItem('build_score_currentStep', step);
 }
 
 function showScreen(id) {
@@ -255,8 +255,8 @@ function startHearing() {
   if (!title) { alert('タイトルを入力してください'); return; }
   if (!requester) { alert('依頼者を入力してください'); return; }
 
-  localStorage.removeItem('converge_conversation');
-  localStorage.removeItem('converge_currentStep');
+  localStorage.removeItem('build_score_conversation');
+  localStorage.removeItem('build_score_currentStep');
   saveMeta({ title: title, requester: requester, hourlyRate: rate });
   saveCurrentStep('q1');
   showScreen('screen-chat');
@@ -266,9 +266,9 @@ function startHearing() {
 }
 
 function startOver() {
-  localStorage.removeItem('converge_meta');
-  localStorage.removeItem('converge_conversation');
-  localStorage.removeItem('converge_currentStep');
+  localStorage.removeItem('build_score_meta');
+  localStorage.removeItem('build_score_conversation');
+  localStorage.removeItem('build_score_currentStep');
   document.getElementById('meta-title').value = '';
   document.getElementById('meta-requester').value = '';
   document.getElementById('meta-rate').value = '3000';
@@ -529,9 +529,9 @@ function resumeSession() {
 }
 
 function clearAndStart() {
-  localStorage.removeItem('converge_meta');
-  localStorage.removeItem('converge_conversation');
-  localStorage.removeItem('converge_currentStep');
+  localStorage.removeItem('build_score_meta');
+  localStorage.removeItem('build_score_conversation');
+  localStorage.removeItem('build_score_currentStep');
   showScreen('screen-meta');
 }
 
