@@ -156,7 +156,7 @@
     <!-- Screen: Resume -->
     <div id="screen-resume" class="screen">
       <h1>build-score</h1>
-      <p class="subtitle">前回のヒアリングが途中のまま残っています</p>
+      <p class="subtitle" id="resume-subtitle">前回のヒアリングが途中のまま残っています</p>
       <div id="resume-info" style="background:white; border:1px solid #e5e7eb; border-radius:8px; padding:16px; margin-bottom:24px;">
       </div>
       <button class="btn btn-primary" style="margin-bottom:12px; width:100%;" onclick="resumeSession()">続きから再開する</button>
@@ -196,8 +196,12 @@
     <div id="screen-result" class="screen">
       <h1>ブリーフが完成しました</h1>
       <div class="file-path" id="result-path"></div>
+      <div id="revalidate-feedback" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:16px; margin-bottom:16px; font-size:14px; line-height:1.6; max-height:260px; overflow-y:auto;"></div>
       <div class="brief-preview" id="result-brief"></div>
-      <button class="btn btn-primary" onclick="startOver()">もう1件入力する</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" id="revalidate-btn" onclick="revalidateBrief()">結果を再検証する</button>
+        <button class="btn btn-primary" onclick="startOver()">もう1件入力する</button>
+      </div>
     </div>
   </div>
 
@@ -233,6 +237,12 @@ function getConversation() {
 function getCurrentStep() {
   return localStorage.getItem('build_score_currentStep') || 'q1';
 }
+function getBrief() {
+  return localStorage.getItem('build_score_brief') || '';
+}
+function getBriefPath() {
+  return localStorage.getItem('build_score_briefPath') || '';
+}
 function saveMeta(meta) {
   localStorage.setItem('build_score_meta', JSON.stringify(meta));
 }
@@ -241,6 +251,14 @@ function saveConversation(conv) {
 }
 function saveCurrentStep(step) {
   localStorage.setItem('build_score_currentStep', step);
+}
+function saveBrief(brief, briefPath) {
+  localStorage.setItem('build_score_brief', brief || '');
+  localStorage.setItem('build_score_briefPath', briefPath || '');
+}
+function clearBrief() {
+  localStorage.removeItem('build_score_brief');
+  localStorage.removeItem('build_score_briefPath');
 }
 
 function showScreen(id) {
@@ -269,9 +287,12 @@ function startOver() {
   localStorage.removeItem('build_score_meta');
   localStorage.removeItem('build_score_conversation');
   localStorage.removeItem('build_score_currentStep');
+  clearBrief();
   document.getElementById('meta-title').value = '';
   document.getElementById('meta-requester').value = '';
   document.getElementById('meta-rate').value = '3000';
+  var feedback = document.getElementById('revalidate-feedback');
+  if (feedback) { feedback.style.display = 'none'; feedback.innerHTML = ''; }
   showScreen('screen-meta');
 }
 
@@ -401,9 +422,8 @@ async function sendAnswer(override) {
     addMsgToChat(chat, 'ai', data.aiResponse);
 
     if (data.done && data.brief) {
-      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
-      showScreen('screen-result');
+      saveBrief(data.brief, data.briefPath);
+      showResultScreen(data.brief, data.briefPath);
       return;
     }
 
@@ -453,9 +473,8 @@ async function sendChoice(value, label) {
     addMsgToChat(chat, 'ai', data.aiResponse);
 
     if (data.done && data.brief) {
-      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
-      showScreen('screen-result');
+      saveBrief(data.brief, data.briefPath);
+      showResultScreen(data.brief, data.briefPath);
       return;
     }
 
@@ -497,9 +516,8 @@ async function autoStep(step) {
     addMsgToChat(chat, 'ai', data.aiResponse);
 
     if (data.done && data.brief) {
-      document.getElementById('result-path').textContent = data.briefPath || 'requirements/';
-      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
-      showScreen('screen-result');
+      saveBrief(data.brief, data.briefPath);
+      showResultScreen(data.brief, data.briefPath);
       return;
     }
 
@@ -523,7 +541,80 @@ async function autoStep(step) {
   }
 }
 
+function showResultScreen(brief, briefPath) {
+  document.getElementById('result-path').textContent = briefPath || 'requirements/';
+  document.getElementById('result-brief').innerHTML = renderMarkdown(brief);
+  var feedback = document.getElementById('revalidate-feedback');
+  if (feedback) { feedback.style.display = 'none'; feedback.innerHTML = ''; }
+  var btn = document.getElementById('revalidate-btn');
+  if (btn) { btn.disabled = false; btn.textContent = '結果を再検証する'; }
+  showScreen('screen-result');
+}
+
+async function revalidateBrief() {
+  var meta = getMeta();
+  var conversation = getConversation();
+  var brief = getBrief();
+  if (!meta || !brief) {
+    alert('再検証するブリーフが見つかりません');
+    return;
+  }
+
+  var btn = document.getElementById('revalidate-btn');
+  var feedback = document.getElementById('revalidate-feedback');
+  if (btn) { btn.disabled = true; btn.textContent = '再検証中...'; }
+  if (feedback) {
+    feedback.style.display = 'block';
+    feedback.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  }
+
+  try {
+    var res = await fetch('/api/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        step: 'revalidate',
+        meta: meta,
+        conversation: conversation,
+        userInput: '',
+        currentBrief: brief,
+      })
+    });
+    var data = await res.json();
+
+    if (data.error) {
+      feedback.innerHTML = '<strong>再検証エラー:</strong> ' + data.error;
+      if (btn) { btn.disabled = false; btn.textContent = '再検証する'; }
+      return;
+    }
+
+    var header = data.changesFound
+      ? '<strong style="color:#065f46;">再検証: 修正が適用されました</strong>'
+      : '<strong style="color:#1e3a8a;">再検証: 問題は見つかりませんでした</strong>';
+    feedback.innerHTML = header + '<hr style="margin:8px 0; border:none; border-top:1px solid #bfdbfe;">' + renderMarkdown(data.aiResponse || '');
+
+    if (data.changesFound && data.brief) {
+      saveBrief(data.brief, data.briefPath || getBriefPath());
+      document.getElementById('result-brief').innerHTML = renderMarkdown(data.brief);
+      if (data.briefPath) {
+        document.getElementById('result-path').textContent = data.briefPath;
+      }
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = 'もう一度再検証する'; }
+  } catch (err) {
+    if (feedback) feedback.innerHTML = '<strong>通信エラー:</strong> 再検証に失敗しました';
+    if (btn) { btn.disabled = false; btn.textContent = '結果を再検証する'; }
+  }
+}
+
 function resumeSession() {
+  // 再検証できる完了済みブリーフがあれば結果画面に戻す
+  var brief = getBrief();
+  if (brief) {
+    showResultScreen(brief, getBriefPath());
+    return;
+  }
   showScreen('screen-chat');
   renderChat();
 }
@@ -532,6 +623,7 @@ function clearAndStart() {
   localStorage.removeItem('build_score_meta');
   localStorage.removeItem('build_score_conversation');
   localStorage.removeItem('build_score_currentStep');
+  clearBrief();
   showScreen('screen-meta');
 }
 
@@ -539,12 +631,25 @@ function clearAndStart() {
 (function init() {
   var meta = getMeta();
   var conv = getConversation();
-  if (meta && conv.length > 0) {
+  var brief = getBrief();
+  if (meta && (conv.length > 0 || brief)) {
     var info = document.getElementById('resume-info');
     var step = getCurrentStep();
-    var label = STEP_LABELS[step] || step;
+    var statusLine = brief
+      ? '依頼者: ' + meta.requester + ' / 状態: ブリーフ完成済み（再検証可能）'
+      : '依頼者: ' + meta.requester + ' / 進行中: ' + (STEP_LABELS[step] || step);
     info.innerHTML = '<strong>' + meta.title + '</strong><br>' +
-      '<span style="color:#666; font-size:14px;">依頼者: ' + meta.requester + ' / 進行中: ' + label + '</span>';
+      '<span style="color:#666; font-size:14px;">' + statusLine + '</span>';
+    var subtitle = document.getElementById('resume-subtitle');
+    if (subtitle) {
+      subtitle.textContent = brief
+        ? '前回のブリーフが残っています。結果画面で再検証できます。'
+        : '前回のヒアリングが途中のまま残っています';
+    }
+    var resumeBtn = document.querySelector('#screen-resume .btn-primary');
+    if (resumeBtn) {
+      resumeBtn.textContent = brief ? '結果画面を開く（再検証可能）' : '続きから再開する';
+    }
     showScreen('screen-resume');
   }
 })();
