@@ -183,14 +183,8 @@ status: reviewed
 ## Verdict: (BUILD/DEFER/KILL)
 (判定理由の要約)
 
-## Raw Notes
-(Q1〜Q6の回答を以下の形式で要約)
-- **Q1（これがないと何が起きる？）:** ...
-- **Q2（今、誰が、どうやって回避している？）:** ...
-- **Q3（誰が困っている？）:** ...
-- **Q4（月に何時間かかっている？）:** ...
-- **Q5（3ヶ月何もしなかったら？）:** ...
-- **Q6（最小構成は何？）:** ...
+注: "## Raw Notes" セクションはコード側でヒアリング履歴から逐語生成するため、
+ブリーフに含める必要はありません。
 
 aiResponse にはブリーフの要約を含めてください。
 brief にはMarkdownブリーフ全文を含めてください。
@@ -329,7 +323,7 @@ async function handleStep(data) {
 
   if (result.done && result.brief) {
     const { saveBrief } = require('./brief-writer.js')
-    const briefPath = saveBrief(result.brief, data.meta, data.projectRoot || process.cwd())
+    const briefPath = saveBrief(result.brief, data.meta, data.projectRoot || process.cwd(), data.conversation)
     result.briefPath = briefPath
   }
 
