@@ -112,6 +112,31 @@ nextStep を "review-confirm" にしてください。`,
 算出結果をユーザーに提示してください。
 nextStep を "generate" にしてください。`,
 
+  revalidate: `すでに生成済みのブリーフを、ユーザーのQ1〜Q6の回答とレビュー結果に照らし合わせて再検証してください。
+
+## 再検証の観点
+1. **整合性チェック**: 生成ブリーフの各セクション（Problem Statement / Current Workaround / Affected Users / ROI Estimate / MVP Scope / Solution Approach / Effort Estimate / Critical Review / Verdict / Raw Notes）が、Q1〜Q6の回答と矛盾していないか
+2. **計算の妥当性**: ROI計算（月間削減時間 × 時給 × 人数）、Priority Score、Effort Estimate の算出が rules に沿っており、数値に誤りがないか
+3. **判定の妥当性**: BUILD/DEFER/KILL の判定が Priority Score と Critical Review の内容から妥当に導かれているか
+4. **記載漏れ**: 会話の中で触れられた重要情報（特定のツール名、人数、時間、制約）がブリーフから漏れていないか
+5. **過剰/不足**: 会話にない情報を勝手に追加していないか、逆に重要な情報を省略していないか
+
+## 出力方針
+- 再検証の結果、問題がなければ "changesFound": false としてください
+- 問題があれば、修正後のブリーフ全文を "brief" フィールドに格納し、"changesFound": true としてください（変更なしの場合は元のブリーフをそのまま "brief" に返してください）
+- "aiResponse" には、再検証の結果サマリ（検出した問題・修正内容・検証OKなら「問題なし」）をMarkdownで記述してください
+
+## 出力形式
+必ず以下のJSON形式のみで回答してください。JSON以外のテキストは含めないでください。
+{
+  "aiResponse": "再検証結果のサマリ（Markdown）",
+  "nextStep": null,
+  "choices": null,
+  "done": true,
+  "brief": "修正後のブリーフ全文（変更なしの場合は元のブリーフをそのまま返す）",
+  "changesFound": true または false
+}`,
+
   generate: `全ヒアリング結果とレビュー結果を元に、最終的なブリーフを生成してください。
 
 以下のMarkdownフォーマットでブリーフ全文を生成し、"brief" フィールドに格納してください:
@@ -199,7 +224,7 @@ nextStep は null にしてください。`,
 }
 
 function buildPrompt(data) {
-  const { step, meta, conversation, userInput, projectRoot } = data
+  const { step, meta, conversation, userInput, projectRoot, currentBrief } = data
   const ctx = loadContext(projectRoot || process.cwd())
   const history = buildConversationHistory(conversation)
   const instruction = STEP_INSTRUCTIONS[step]
@@ -207,6 +232,10 @@ function buildPrompt(data) {
   if (!instruction) {
     throw new Error(`Unknown step: ${step}`)
   }
+
+  const briefSection = step === 'revalidate' && currentBrief
+    ? `\n## 再検証対象のブリーフ（生成済み）\n\`\`\`markdown\n${currentBrief}\n\`\`\`\n`
+    : ''
 
   return `あなたは社内要件定義の収束スキル「build-score」のAIアシスタントです。
 日本語で回答してください。
@@ -232,7 +261,7 @@ ${ctx.constraints ? `### 技術制約\n${ctx.constraints}` : '(未設定)'}
 
 ## これまでの会話
 ${history || '(まだ会話はありません)'}
-
+${briefSection}
 ## 現在のステップ: ${step}
 ${userInput ? `ユーザーの入力: ${userInput}` : ''}
 
@@ -308,6 +337,7 @@ function parseResponse(raw, currentStep) {
     choices: null,
     done: false,
     brief: null,
+    changesFound: null,
   }
 }
 
@@ -318,6 +348,7 @@ function normalizeResponse(parsed, currentStep) {
     choices: parsed.choices || null,
     done: parsed.done || false,
     brief: parsed.brief || null,
+    changesFound: typeof parsed.changesFound === 'boolean' ? parsed.changesFound : null,
   }
 }
 
@@ -328,9 +359,13 @@ async function handleStep(data) {
   const result = parseResponse(raw, data.step)
 
   if (result.done && result.brief) {
-    const { saveBrief } = require('./brief-writer.js')
-    const briefPath = saveBrief(result.brief, data.meta, data.projectRoot || process.cwd())
-    result.briefPath = briefPath
+    // revalidate で変更がない場合はファイルを書き換えない（元のブリーフを保持）
+    const shouldSave = data.step !== 'revalidate' || result.changesFound === true
+    if (shouldSave) {
+      const { saveBrief } = require('./brief-writer.js')
+      const briefPath = saveBrief(result.brief, data.meta, projectRoot)
+      result.briefPath = briefPath
+    }
   }
 
   return result
